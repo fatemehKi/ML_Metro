@@ -23,8 +23,8 @@ X_train, X_test, y_train, y_test=train_test_split(X,y)
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 
 
-simple=DecisionTreeClassifier(max_depth=1) #simple decision tree
-rf=RandomForestClassifier(n_estimators=15, max_depth=3, random_state=0) #random forest with the 15 trees 
+simple=DecisionTreeClassifier(max_depth=2) #simple decision tree
+rf=RandomForestClassifier(n_estimators=15, max_depth=2, random_state=0) #random forest with the 15 trees 
 ada=AdaBoostClassifier(n_estimators=15, random_state=0) #by default deep is 1.. we can use the other estimator for base_estimator
 ###adaboost is more general and can be used on non-tree models by using base_estimator parameter
 
@@ -36,6 +36,6 @@ simple.score(X_train, y_train)
 rf.score(X_train, y_train)
 ada.score(X_train, y_train)
 
-simple.score(X_test, y_test)
-rf.score(X_test, y_test)
+simple.score(X_test, y_test)                  
+rf.score(X_test, y_test) ### since the different between the test and train is not high it is not overfitting 
 ada.score(X_test, y_test)
