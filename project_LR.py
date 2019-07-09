@@ -51,15 +51,20 @@ def splt(df, fr):
     return(X_train, y_train, X_test, y_test)
 
 ##### Initilization
-def init:
-    X = tf.constant(np.random.randn(3,1), name = "X")
-    W = tf.constant(np.random.randn(4,3), name = "W")
-    b = tf.constant(np.random.randn(4,1), name = "b")
-    Y = tf.add(tf.matmul(W, X),b)
-
-#### Model
-def LR()
-    x=tf.placeholder(tf)
+#def init:
+#    X = tf.constant(np.random.randn(), name = "X")
+#    W = tf.constant(np.random.randn(), name = "W")
+#    b = tf.constant(np.random.randn(), name = "b")
+#    #Y = tf.add(tf.matmul(W, X),b)
+#    W = tf.Variable(np.random.randn(), dtype=np.float)
+#    b = tf.placeholder(np.random.randn())
+#    X = tf.placeholder(tf.float32, shape=[n_x, None])
+#    Y = tf.placeholder(tf.float32, shape=[n_y, None])
+#
+##### Model
+#def LR()
+#    x=tf.placeholder(tf)
+#    logits = tf.matmul(x, weights) + biases
     
    
 if __name__ == '__main__':  
@@ -72,14 +77,20 @@ if __name__ == '__main__':
     cor(dataset)
     fr=0.8 #fraction of splitting
     X_train, y_train, X_test, y_test= splt(dataset,fr)
+    n_x = X_train.shape
     eta =tf.constant(0.01, name='learning_rate')
     stp = tf.constant(1000, name='no_step')
     dis_stp = tf.constant(100, name='display_step')
-    W = tf.placeholder(np.random.randn())
-    b = tf.placeholder(np.random.randn())
     
     
+    W = tf.Variable(np.random.randn(), dtype=tf.float32)
+    b = tf.Variable(np.random.randn(), dtype=tf.float32)
+    X = tf.placeholder(tf.float32, shape=[n_x, None])
+    y_act = tf.placeholder(tf.float32)
     
+    LR= W*X+b
+    Loss=tf.reduce_sum(LR-y_act)    
+    optimizer=tf.train.Gradient    
     
     
     
