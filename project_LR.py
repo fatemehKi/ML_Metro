@@ -1,3 +1,4 @@
+
 """
 Created on Mon May 20 03:38:53 2019
 @author: Fatemeh Kiaie
@@ -8,22 +9,19 @@ regression
 import numpy as np
 import pandas as pd
 import seaborn as sns
-import matplotlib.pyplot as plt
+import statsmodels.api as sm
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
-from sklearn.linear_model import LinearRegression
-from sklearn import neighbors
-from sklearn.metrics import mean_squared_error
+from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.svm import SVC
 from sklearn.feature_selection import RFE
-import statsmodels.api as sm
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import KFold
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
-from sklearn.ensemble import AdaBoostRegressor
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.svm import SVR
 
 ################ loading dataset
 def load_file(file):
@@ -33,7 +31,7 @@ def load_file(file):
 
 ################ Data Cleaning
 def cleaning(df):
-    '''handling missing values and invalid data'''
+    '''handling missing values using backward filling'''
     print(df.isnull().sum())    
     if (df.isnull().sum().any() !=0):
         df=df.dropna(how='all')
@@ -140,15 +138,15 @@ def LiR(X_train, y_train, X_test, y_test, sc_y, X):
     
 ################ KNN 
 def KNN_R(X_train, y_train, X_test, y_test):
-    sc=list()
-    for k in range(1, 21):
+    #sc=list()
+    #for k in range(1, 21):
         model=neighbors.KNeighborsRegressor(n_neighbors = k)
         model.fit(X_train, y_train)
         y_pred= model.predict(X_test)
-        sc.append(model.score(X_test, y_test))
+       # sc.append(model.score(X_test, y_test))
     
     parameters= {'n_neighbors':[2,3,4,5,6,7,8,9]}        
-    return (model, parameters, k, sc) 
+    return (model, parameters, sc) 
 
 ################ Random Forest 
 def RaFo_R(X_train, y_train, X_test, y_test):
@@ -235,8 +233,7 @@ if __name__ == '__main__':
     X_train, y_train, X_test, y_test= splt(X_s,y,fr)
     
     ###model training and performance results
-    k=4
-    
+    k=4    
     ##Linear Regression
     model, parameters, score_, adj_R2_, MSR_, result=LiR(X_train, y_train, X_test, y_test, sc_y, X)
     print("Considered model is :", model)
@@ -252,7 +249,7 @@ if __name__ == '__main__':
         
     ##KNN
     model, parameters, nn, sc_knn= KNN_R(X_train, y_train, X_test, y_test)
-    print('accuracy score for KNN with k= ', nn, 'equal to: ', sc_knn)
+    print('accuracy score for default KNN with equal to: ', sc_knn)
     ###gridsearchCV and kfold
     grd_best_score_kNN=grdsrch_cv(X_train, y_train, model, parameters)
     print('best score coming from grid search CV score: ', grd_best_score_kNN, ' in model: ', model)
