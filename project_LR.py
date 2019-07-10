@@ -235,38 +235,54 @@ if __name__ == '__main__':
     X_train, y_train, X_test, y_test= splt(X_s,y,fr)
     
     ###model training and performance results
-    model=[]
+    k=4
     
     ##Linear Regression
-    model[0], parameters, score_, adj_R2_, MSR_, result=LiR(X_train, y_train, X_test, y_test, sc_y, X)
-    print("Considered model is :", model[0])
+    model, parameters, score_, adj_R2_, MSR_, result=LiR(X_train, y_train, X_test, y_test, sc_y, X)
+    print("Considered model is :", model)
     print("score value is :", score_)
     print("adjusent R^2 value is :", adj_R2_)
     print("Mean square error is :", MSR_)
     print('P value is:', result.summary())
     
+    ###gridsearchCV and kfold
+    grd_best_score_LiR=grdsrch_cv(X_train, y_train, model, parameters)
+    print('best score coming from grid search CV score: ', grd_best_score_LiR, ' in model: ', model)
+    kfld_max_score_LiR= k_fld(k, X_train, X_test, X, model)
+        
     ##KNN
-    model[1], parameters, nn, sc_knn= KNN_R(X_train, y_train, X_test, y_test)
+    model, parameters, nn, sc_knn= KNN_R(X_train, y_train, X_test, y_test)
     print('accuracy score for KNN with k= ', nn, 'equal to: ', sc_knn)
+    ###gridsearchCV and kfold
+    grd_best_score_kNN=grdsrch_cv(X_train, y_train, model, parameters)
+    print('best score coming from grid search CV score: ', grd_best_score_kNN, ' in model: ', model)
+    kfld_max_score_KNN= k_fld(k, X_train, X_test, X, model)
     
     ##Random Forest
-    model[2], parameters, sc_RF = RaFo_R(X_train, y_train, X_test, y_test)
-    print('accuracy score for Random Forest equals to: ', sc_knn)
+    model, parameters, sc_RF = RaFo_R(X_train, y_train, X_test, y_test)
+    print('accuracy score for Random Forest equals to: ', sc_RF)
+    ###gridsearchCV and kfold
+    grd_best_score_RaFo_R=grdsrch_cv(X_train, y_train, model, parameters)
+    print('best score coming from grid search CV score: ', grd_best_score_RaFo_R, ' in model: ', model)
+    kfld_max_score_RaFo_R= k_fld(k, X_train, X_test, X, model)
     
     ##Adaboost    
-    model[3], parameters, sc_ada = ada_R(X_train, y_train, X_test, y_test)
-    print('accuracy score for Adaboost equals to: ', sc_ada)
+    model, parameters, sc_ada = ada_R(X_train, y_train, X_test, y_test)
+    print('accuracy score for Adaboost equals to: ', sc_ada)    
+    ###gridsearchCV and kfold
+    grd_best_score_ada_R=grdsrch_cv(X_train, y_train, model, parameters)
+    print('best score coming from grid search CV score: ', grd_best_score_ada_R, ' in model: ', model)
+    kfld_max_score_ada_R= k_fld(k, X_train, X_test, X, model)
     
     ##SVM
-    model[4], parameters, sc_svm = svm_R(X_train, y_train, X_test, y_test)
+    model, parameters, sc_svm = svm_R(X_train, y_train, X_test, y_test)
     print('accuracy score for SVM equals to: ', sc_svm)
-  
-    k=4 
     ###gridsearchCV and kfold
-    for i in range(5):
-        grd_best_score=grdsrch_cv(X_train, y_train, model[i], parameters)
-        print('best score coming from grid search CV score: ', grd_best_score, ' in model: ', model[i] )
-        #kfold implementation
-        kfld_max_score= k_fld(k, X_train, X_test, X, model[i])   
+    grd_best_score_svm_R=grdsrch_cv(X_train, y_train, model, parameters)
+    print('best score coming from grid search CV score: ', grd_best_score_svm_R, ' in model: ', model)
+    kfld_max_score_svm_R= k_fld(k, X_train, X_test, X, model)
+  
+    
+    
     
     
