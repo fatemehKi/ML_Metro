@@ -18,7 +18,7 @@ y=dataset.target[:100]
 
 #importing the 
 from sklearn.linear_model import Perceptron
-clf=Perceptron(n_iter=10)
+clf=Perceptron(n_iter=10)#maximum number of iteration to find the line
 
 clf.fit(X,y)
 clf.score(X,y) ### it is the score of the training score that's why it is 100% 
