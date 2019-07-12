@@ -17,7 +17,7 @@ X=pd.read_csv("Mall_Customers.csv").values #either use iloc or the value thing
 from sklearn.cluster import KMeans
 
 #train model
-model=KMeans(n_clusters=2,random_state=0) #the default number of k is 8 and we selected only two clusters
+model=KMeans(n_clusters=2,random_state=0) #the default number of k(n_cluster) is 8 and we selected only two clusters
 model.fit(X)
 #find the final cluster assignment
 y_pred=model.predict(X) # we can see the clssification of the output
