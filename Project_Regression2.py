@@ -27,6 +27,7 @@ from sklearn.metrics import mean_squared_error
 from sklearn.feature_selection import RFE
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import KFold
+from sklearn.model_selection import cross_val_score
 
 ################ loading dataset
 def load_file(file):
@@ -67,10 +68,10 @@ def trg(df, midx):
 def scl(X,y):
     '''scaling'''
     sc_X = StandardScaler()
-    X=sc_X.fit_transform(X)
+    X_s=sc_X.fit_transform(X)
     sc_y=StandardScaler()
-    y=sc_y.fit_transform(y.reshape(len(y),1)).reshape(len(y))
-    return(X,y,sc_X, sc_y)
+    y_s=sc_y.fit_transform(y.reshape(len(y),1)).reshape(len(y))
+    return(X_s,y_s,sc_X, sc_y)
 
 ################ PCA
 def pca_(X):
@@ -119,7 +120,7 @@ def splt(X, y, fr):
     return(X_train, y_train, X_test, y_test)
 
 ################ Linear Regression
-def LiR(X_train, y_train, X_test, y_test, sc_y, X):
+def LiR(X_train, y_train, X_test, y_test, X_s, y_s, sc_y):
     '''Linear Regression model and the scores'''
     model = LinearRegression()
     #train the model
@@ -127,19 +128,21 @@ def LiR(X_train, y_train, X_test, y_test, sc_y, X):
     y_pred = model.predict(X_test)    
     #scoring the linear regression model
     #score_= model.score(X_test, y_test) 
-    score_ = model.score(X_train, y_train)       
-    n = len(X)
-    k = len(X[0])
+    score_ = model.score(X_train, y_train) 
+    #kfold cross validation--first method:      
+    kfold_score= cross_val_score(model, X_s, y_s, cv=4)
+    n = len(X_s)
+    k = len(X_s[0])
     adj_R2_ = 1-(n-1)*(1-score_)/(n-k-1)     
     y_pred = sc_y.inverse_transform(y_pred.reshape(len(y_pred),1)).reshape(len(y_pred))
     y_test = sc_y.inverse_transform(y_test.reshape(len(y_test),1)).reshape(len(y_test))
     MSR_= mean_squared_error(y_test, y_pred)
     X_modified = sm.add_constant(X_train)
     lin_reg = sm.OLS(y_train,X_modified)
-    result = lin_reg.fit()
+    result = lin_reg.fit()    
     #gridsearch parameter
     parameters = {'fit_intercept':[True,False], 'normalize':[True,False], 'copy_X':[True, False]}
-    return(model, parameters, score_, adj_R2_, MSR_, result)    
+    return(model, parameters, score_, adj_R2_, MSR_, result, kfold_score)    
     
 ################ KNN 
 def KNN_R(X_train, y_train, X_test, y_test):
@@ -182,20 +185,21 @@ def svm_R(X_train, y_train, X_test, y_test):
    
 
 ################ Grid search
-def grdsrch_cv(X_train, y_train, model, parameters):
+def grdsrch_cv(X_s, y_s, model, parameters):
     ''' Grid search scoring results'''
-    grid = GridSearchCV(model,parameters, cv=None)
-    grid.fit(X_train, y_train)
+    grid = GridSearchCV(model,parameters, cv=4) ## second kfold method: 4 fold cross valiation
+    grid.fit(X_s, y_s)
     return(grid.best_score_)
     
-################
-def k_fld(k, X_train, X_test, X, model):
+################ K-fold algorithm.. third method..first method is using cross_val_score(estimator) in the model(used in LiR), 2nd is gread_search
+def k_fld(k, X_s, model):
+    ''' k fold algorithm implementation'''
     scores = []
     max_score = 0
     kf = KFold(n_splits=k,random_state=0,shuffle=True)
     for train_index, test_index in kf.split(X):
-        X_train, X_test = X[train_index], X[test_index]
-        y_train, y_test = y[train_index], y[test_index]
+        X_train, X_test = X_s[train_index], X_s[test_index]
+        y_train, y_test = y_s[train_index], y_s[test_index]
         model.fit(X_train,y_train)
         #see performance score in k
         current_score = model.score(X_test,y_test)
@@ -207,8 +211,8 @@ def k_fld(k, X_train, X_test, X, model):
 
 
 
-
-################################ Main ################################
+##################################################################################
+#--------------------------------------- Main ----------------------------------#
 if __name__ == '__main__':  
     
     #define input dataset
@@ -225,31 +229,32 @@ if __name__ == '__main__':
     X, y=trg(dataset, midx)
     
     #normalization/scaling is required
-    X_s, y, sc_X, sc_y=scl(X,y)
+    X_s,y_s,sc_X, sc_y=scl(X,y)
     
     #checking the high variance feature
     r=pca_(X_s)
     
     #Feature eliination using RFE
-    RFE_adj_R2, support_, ranking_, X_sub = Ftr_elm(X, y)
+    RFE_adj_R2, support_, ranking_, X_sub = Ftr_elm(X_s, y_s)
     
     #splittig the data-fr is fraction of test size for splitting
     fr=0.2 
-    X_train, y_train, X_test, y_test= splt(X_s,y,fr)
+    X_train, y_train, X_test, y_test= splt(X_s,y_s,fr)
     
     ###model training and performance results
     k=4    
     ##Linear Regression
-    model, parameters, score_, adj_R2_, MSR_, result=LiR(X_train, y_train, X_test, y_test, sc_y, X)
+    model, parameters, score_, adj_R2_, MSR_, result, kfold_score=LiR(X_train, y_train, X_test, y_test, X_s, y_s, sc_y)
     print("Considered model is :", model)
     print("score value is :", score_)
     print("adjusent R^2 value is :", adj_R2_)
     print("Mean square error is :", MSR_)
     print('P value is:', result.summary())    
-    ###gridsearchCV and kfold
+    ###gridsearchCV and kfold, 2nd and 3rd kfold metho.. 2nd is inside gridsearchcv and third is using the function "kfld"
     grd_best_score_LiR=grdsrch_cv(X_train, y_train, model, parameters)
     print('best score coming from grid search CV score: ', grd_best_score_LiR, ' in model: ', model)
-    kfld_max_score_LiR= k_fld(k, X_train, X_test, X, model)
+    #kfold implementation: third method    
+    kfld_max_score_LiR= k_fld(k, X_s, model)
         
     ##KNN
     model, parameters, sc_knn= KNN_R(X_train, y_train, X_test, y_test)
@@ -257,7 +262,7 @@ if __name__ == '__main__':
     ###gridsearchCV and kfold
     grd_best_score_kNN=grdsrch_cv(X_train, y_train, model, parameters)
     print('best score coming from grid search CV score: ', grd_best_score_kNN, ' in model: ', model)
-    kfld_max_score_KNN= k_fld(k, X_train, X_test, X, model)
+    kfld_max_score_KNN= k_fld(k, X_train, X_test, X_s, model)
     
     ##Random Forest
     model, parameters, sc_RF = RaFo_R(X_train, y_train, X_test, y_test)
@@ -265,7 +270,7 @@ if __name__ == '__main__':
     ###gridsearchCV and kfold
     grd_best_score_RaFo_R=grdsrch_cv(X_train, y_train, model, parameters)
     print('best score coming from grid search CV score: ', grd_best_score_RaFo_R, ' in model: ', model)
-    kfld_max_score_RaFo_R= k_fld(k, X_train, X_test, X, model)
+    kfld_max_score_RaFo_R= k_fld(k, X_train, X_test, X_s, model)
     
     ##Adaboost    
     model, parameters, sc_ada = ada_R(X_train, y_train, X_test, y_test)
@@ -273,7 +278,7 @@ if __name__ == '__main__':
     ###gridsearchCV and kfold
     grd_best_score_ada_R=grdsrch_cv(X_train, y_train, model, parameters)
     print('best score coming from grid search CV score: ', grd_best_score_ada_R, ' in model: ', model)
-    kfld_max_score_ada_R= k_fld(k, X_train, X_test, X, model)
+    kfld_max_score_ada_R= k_fld(k, X_train, X_test, X_s, model)
     
     ##SVM
     model, parameters, sc_svm = svm_R(X_train, y_train, X_test, y_test)
@@ -281,7 +286,7 @@ if __name__ == '__main__':
     ###gridsearchCV and kfold
     grd_best_score_svm_R=grdsrch_cv(X_train, y_train, model, parameters)
     print('best score coming from grid search CV score: ', grd_best_score_svm_R, ' in model: ', model)
-    kfld_max_score_svm_R= k_fld(k, X_train, X_test, X, model)
+    kfld_max_score_svm_R= k_fld(k, X_train, X_test, X_s, model)
   
     
     
