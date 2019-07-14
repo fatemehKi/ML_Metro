@@ -1,7 +1,8 @@
 """
 Created on Mon July 8 03:38:53 2019
 @author: Fatemeh Kiaie
-@description: this project implements regression models to predict nline news popularity
+@description: this project implements regression models to predict online news 
+popularity
 """
 
 import numpy as np
@@ -177,7 +178,7 @@ def svm_R(X_train, y_train, X_test, y_test):
     sc=model.score(X_test, y_test)    
     #checking for overfiting
     ac_s_train = model.score(X_train,y_train) 
-    parameters = {'C': [1.0,0.1,0.01], 'kernel':['linear','rbf','poly'] }
+    parameters = {'C': [1.0,0.1], 'kernel':['linear','rbf','poly'] }
     return(model, parameters, sc, ac_s_train)
    
 
@@ -312,17 +313,16 @@ if __name__ == '__main__':
     
     ######################################### Result Visualization
     plt.rcdefaults()
-    objects = ('Logistic_Regression', 'KNN', 'Random_Forest', 'AdaBoost', 'SVM')
+    objects = ('Linear_Regression', 'KNN', 'Random_Forest', 'AdaBoost', 'SVR')
     y_pos = np.arange(len(objects))
    
-    
+       
     SCORE_DE = [score_LiR, score_KNN, score_RF, score_ADA, score_SVM]
-    plt.bar(y_pos, SCORE_DE, align='center', alpha=0.5, color = 'darkgreen')
+    plt.bar(y_pos, SCORE_DE, align='center', alpha=0.5, color = 'orange')
     plt.xticks(y_pos, objects)
     plt.ylabel('Score Comparison With Default Parameters')
     plt.title('Performance Evaluation')
     plt.show()
-    
     
     
     SCORE_OV = [(score_train_LiR-score_LiR), (score_train_KNN-score_KNN), (score_train_RF-score_RF), (score_train_ADA-score_ADA),(score_train_SVM-score_SVM)]
@@ -332,6 +332,8 @@ if __name__ == '__main__':
     plt.title('Performance Evaluation')
     plt.show()
     
+    
+    
     SCORE_kfold = [ kfld_cv_score_LiR,  kfld_cv_score_KNN, kfld_cv_score_RF, kfld_cv_score_ADA, kfld_cv_score_SVM]
     plt.bar(y_pos, SCORE_kfold, align='center', alpha=0.5, color='red' )
     plt.xticks(y_pos, objects)
@@ -340,9 +342,8 @@ if __name__ == '__main__':
     plt.show()
     
     
-    
     SCORE_BE = [grd_best_score_LiR, grd_best_score_KNN, grd_best_score_RF, grd_best_score_ADA, grd_best_score_SVM]
-    plt.bar(y_pos, SCORE_BE, align='center', alpha=0.5)
+    plt.bar(y_pos, SCORE_BE, align='center', alpha=0.5, color='darkgreen' )
     plt.xticks(y_pos, objects)
     plt.ylabel('Best Achieved Score')
     plt.title('Performance Evaluation')
