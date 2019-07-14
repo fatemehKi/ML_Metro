@@ -1,8 +1,8 @@
 """
 Created on Mon May 20 03:38:53 2019
 @author: Fatemeh Kiaie
-@description: this project implement the lego price prediction using linear 
-regression
+@description: this project implement the handwritten image classification using
+ classification models
 """
 
 import numpy as np
@@ -117,8 +117,7 @@ def LoR(X_train, y_train, X_test, y_test, y, X):
     cm = confusion_matrix(y_test, y_pred)
     result = classification_report(y_test,y_pred)
     #checking for overfiting
-    y_pred_train = model.predict(X_train)  
-    ac_s_train = accuracy_score(y_train,y_pred_train)      
+    ac_s_train = model.score(X_train,y_train)      
     parameters = {"C":np.logspace(-3,3,7), "penalty":["l1","l2"]}
     return(model, parameters, ac_s, ac_s_train, cm, result)    
     
@@ -133,8 +132,7 @@ def KNN_C(X_train, y_train, X_test, y_test):
     cm = confusion_matrix(y_test, y_pred)
     result = classification_report(y_test,y_pred)
     #checking for overfiting
-    y_pred_train = model.predict(X_train)  
-    ac_s_train = accuracy_score(y_train,y_pred_train)
+    ac_s_train = model.score(X_train,y_train)
     parameters= {'n_neighbors':[5, 10, 50, 100]}        
     return(model, parameters, ac_s, ac_s_train, cm, result)
 
@@ -148,8 +146,7 @@ def RaFo_C(X_train, y_train, X_test, y_test):
     cm = confusion_matrix(y_test, y_pred)
     result = classification_report(y_test,y_pred)
     #checking for overfiting
-    y_pred_train = model.predict(X_train)  
-    ac_s_train = accuracy_score(y_train,y_pred_train)
+    ac_s_train = model.score(X_train,y_train)
     parameters= { 'n_estimators': [5, 10, 50], 'max_depth' : [5,10,15]}
     return(model, parameters, ac_s, ac_s_train, cm, result)
 
@@ -162,8 +159,7 @@ def ada_C(X_train, y_train, X_test, y_test):
     cm = confusion_matrix(y_test, y_pred)
     result = classification_report(y_test,y_pred)
     #checking for overfiting
-    y_pred_train = model.predict(X_train)  
-    ac_s_train = accuracy_score(y_train,y_pred_train)    
+    ac_s_train = model.score(X_train,y_train)   
     parameters = { 'n_estimators': [5, 10, 50] }
     return(model, parameters, ac_s, ac_s_train, cm, result)
 
@@ -176,8 +172,7 @@ def svm_C(X_train, y_train, X_test, y_test):
     cm = confusion_matrix(y_test, y_pred)
     result = classification_report(y_test,y_pred)   
     #checking for overfiting
-    y_pred_train = model.predict(X_train)  
-    ac_s_train = accuracy_score(y_train,y_pred_train)    
+    ac_s_train = model.score(X_train,y_train)    
     parameters = {'C': [1.0,0.1,0.01], 'kernel':['linear','rbf','poly'] }
     return(model, parameters, ac_s, ac_s_train, cm, result)
    
